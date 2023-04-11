@@ -35,7 +35,7 @@ function operation() {
         } else if (action === 'Deposit') {
             deposit()
         } else if (action === 'Withdraw') {
-            
+            withdraw()
         } else if (action === 'Exit') {
             console.log(chalk.bgBlue.black('Thank you for use the Accounts!'))
             process.exit()
@@ -123,8 +123,6 @@ function checkAccount(accountName) {
     if (!fs.existsSync(`accounts/${accountName}.json`)) {
         console.log(chalk.bgRed.black("This account " + accountName + " does not exist chose another name"))
         return false
-    } else {
-
     }
     return true
 }
@@ -181,4 +179,65 @@ function getAccountBalance() {
 
         operation()
     }).catch((error) => console.log(error))
+}
+
+function withdraw() {
+    inquirer.prompt([
+        {
+            name: "accountName",
+            message: "What's your account name?"
+        }
+    ])
+    .then((answer) => {
+        const accountName = answer.accountName
+
+        // verify if the account exists
+        if(!checkAccount(accountName)) {
+            return withdraw()
+        }
+
+        inquirer.prompt([
+            {
+                name: 'amount',
+                message: 'How much to you want to withdraw?'
+            }
+        ])
+        .then((answer) => {
+            const amount = answer.amount
+
+            removeAmount(accountName, amount)
+        })
+        .catch((error) => console.log(error))
+    })
+    .catch((error) => console.log(error))
+}
+
+function removeAmount(accountName, amount) {
+    const accountData = getAccount(accountName)
+
+    if (!amount) {
+        console.log(chalk.bgRed.black("You did not inform the amount. Please try again"))
+        return withdraw()
+    }
+
+    if (accountData.balance < amount) {
+        console.log(chalk.bgRed.black("You don't have that amount to withdraw"))
+        return withdraw()
+    }
+
+    accountData.balance = parseFloat(accountData.balance) - parseFloat(amount)
+
+    fs.writeFileSync(
+        `accounts/${accountName}.json`,
+        JSON.stringify(accountData),
+        function(err) {
+            console.log(err)
+        }
+    )
+
+    console.log(
+        chalk.green(`A withdraw of $${amount} was made in your account`)
+    )
+
+    operation()
 }
