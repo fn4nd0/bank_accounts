@@ -31,11 +31,11 @@ function operation() {
         if (action === 'Create Account') {
             createAccount()
         } else if (action === 'Account balance') {
-            ''
+            getAccountBalance()
         } else if (action === 'Deposit') {
             deposit()
         } else if (action === 'Withdraw') {
-            ''
+            
         } else if (action === 'Exit') {
             console.log(chalk.bgBlue.black('Thank you for use the Accounts!'))
             process.exit()
@@ -157,4 +157,28 @@ function getAccount(accountName) {
     })
 
     return JSON.parse(accountJson)
+}
+
+function getAccountBalance() {
+    inquirer.prompt([
+        {
+            name: 'accountName',
+            message: "What's your account name?"
+        }
+    ]).then((answer) => {
+        const accountName = answer.accountName
+
+        // verify if the account exists
+        if (!checkAccount(accountName)) {
+            return getAccountBalance()
+        }
+
+        const accountData = getAccount(accountName)
+
+        console.log(chalk.bgBlue.black(
+            `Your account balance is $${accountData.balance}`
+        ))
+
+        operation()
+    }).catch((error) => console.log(error))
 }
