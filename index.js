@@ -28,8 +28,18 @@ function operation() {
 
         const action = answer.action
         
-        if (action === 'Create Account')
+        if (action === 'Create Account') {
             createAccount()
+        } else if (action === 'Account balance') {
+            ''
+        } else if (action === 'Deposit') {
+            deposit()
+        } else if (action === 'Withdraw') {
+            ''
+        } else if (action === 'Exit') {
+            console.log(chalk.bgBlue.black('Thank you for use the Accounts!'))
+            process.exit()
+        }
 
     })
     .catch(err => console.error(err))
@@ -69,4 +79,36 @@ function buildAccount() {
         operation()
         
     })
+}
+
+// add on amount to the user account
+function deposit() {
+    inquirer.prompt([
+        {
+            name: 'accountName',
+            message: "What's your account name?"
+        }
+    ])
+    .then((answer) => {
+
+        const accountName = answer.accountName
+
+        //verify if the account exists
+        if (!checkAccount(accountName))
+            deposit()
+
+    })
+    .catch((err) => {
+        console.log(err)
+    })
+}
+
+function checkAccount(accountName) {
+    if (!fs.existsSync(`accounts/${accountName}.json`)) {
+        console.log(chalk.bgRed.black("This account " + accountName + " does not exist chose another name"))
+        return false
+    } else {
+
+    }
+    return true
 }
